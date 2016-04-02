@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta charset="utf-8">
+<title>GetWild</title>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
+<div id="value">CurrentValue: -</div>
+<div id="threshold">-</div>
+<div id="slider"  style=" margin:5px;width: 700px;"></div>
+<input id="url" type="text" value="" style=" margin:5px;width: 700px;"/>
+
+<script>
+$(function() {
+  var isGetWild = false;
+  var threshold = 100;
+  var getwild_url = "https://youtu.be/LgBxze0ye94?t=1m45s";
+
+  // GetWild退勤
+  function getWildAndTouch() {
+    window.open(getwild_url);
+  }
+
+  // 設定値読み込み
+  if ("url" in localStorage) {
+    getwild_url = localStorage["url"];
+  }
+  if ("threshold" in localStorage) {
+    threshold = localStorage["threshold"];
+  }
+
+  // Url
+  $("#url").val(getwild_url)
+  $("#url").on("change", () => {
+    getwild_url = $("#url").val();
+    localStorage["url"] = getwild_url;
+  });
+
+  // しきい値設定
+  $("#threshold").html(threshold);
+  $( "#slider" ).slider({
+    max:1000,
+    min:0,
+    value:threshold,
+    step: 1,
+    slide: (event, ui) => {
+      threshold = ui.value;
+      localStorage["threshold"] = threshold;
+      $("#threshold").html(threshold);
+    }
+  });
+
+  // センサ
+  window.addEventListener('devicelight', function(event) {
+    var lux = event.value;
+    $("#value").html("CurrentValue: " + lux + 'lux');
+    if (lux < threshold) {
+      if (!isGetWild) {
+        isGetWild = true;
+        getWildAndTouch();
+      }
+    } else {
+      isGetWild = false;
+    }
+  });
+});
+</script>
